@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.fontWeightBold": "normal",
+    "editor.renderLineHighlight": "gutter",
+    "editor.fontSize": 16,
+    "files.autoSave": "onFocusChange"
+}

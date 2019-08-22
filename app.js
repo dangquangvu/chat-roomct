@@ -6,7 +6,10 @@ var morgan = require('morgan');
 const flash = require('connect-flash');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
+const path = require('path')
 const app = express();
+const server = require('http').createServer();
+const io = require('socket.io')(server);
 // mongoose.connect("mongodb://localhost:27017/", {
 //     useNewUrlParser: true
 // });
@@ -27,6 +30,12 @@ mongoose
 // EJS
 app.use(expressLayouts);
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/views"));
+app.use(express.static(__dirname + '../public'));
+app.use(express.static(__dirname + "../views"));
 app.use(morgan('dev'));
 // Express body parser
 app.use(express.urlencoded({ extended: true }));
@@ -65,5 +74,11 @@ app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
 
 const PORT = process.env.PORT || 5000;
-
+io.on('connection', socket => {
+    let user = req.session.passport.user;
+    socket.on('event', data => { /* … */ });
+    socket.on('disconnect', () => {
+        console.log()
+    });
+});
 app.listen(PORT, console.log(`Server started on port ${PORT}`));

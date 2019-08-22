@@ -6,10 +6,10 @@ const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
 router.get('/', forwardAuthenticated, (req, res) => res.render('welcome'));
 
 // Dashboard
-router.get('/dashboard', ensureAuthenticated, (req, res) => {
+router.get('/chat', ensureAuthenticated, (req, res) => {
     var ses = req.session
     console.log(ses, 1111111111111)
-    res.render('dashboard', {
+    res.render('chat', {
         user: req.user
     })
 });
