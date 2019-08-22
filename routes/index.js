@@ -7,7 +7,7 @@ router.get('/', forwardAuthenticated, (req, res) => res.render('welcome'));
 
 // Dashboard
 router.get('/chat', ensureAuthenticated, (req, res) => {
-    var ses = req.session
+    var ses = req.session.passport.user
     console.log(ses, 1111111111111)
     res.render('chat', {
         user: req.user
