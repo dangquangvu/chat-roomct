@@ -4,9 +4,12 @@
     const socket = io()
     $(document).ready(function() {
         $("#button-login").click(function() {
-            var username = $('#email').val();
+            var email = $('#email').val();
             socket.emit('clickButtonLogin', {
-                username
+                email
+            })
+            socket.emit('user-join', {
+                email
             })
         });
     })

@@ -7,9 +7,21 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../css/style.css">
     <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
+        $(document).ready(function() {
+            $('#message').keypress(function(event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    let mess = $(this).val();
+                    console.log(mess)
+                    socket.emit('send-mess', mess)
+                    $('#message').val('')
+                }
+            });
+        })
     </script>
 
 </head>
@@ -23,10 +35,10 @@
             </div>
             <div class="compose">
                 <form id="message-form">
-                    <input name="message" placeholder="Message" required autocomplete="off">
-                    <button>Send</button>
+                    <input name="message" placeholder="Message" required autocomplete="off" id="message">
+                    <button id="send">Send</button>
                 </form>
-                <button id="send-location">Send location</button>
+                <button id="logout"><a href="/users/logout" style="text-decoration: none;">log out</a></button>
             </div>
         </div>
     </div>

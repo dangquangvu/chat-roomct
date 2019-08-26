@@ -13,7 +13,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 const dotenvAbsolutePath = path.join(process.cwd(), ".env");
 require("dotenv").config({ silent: true, path: dotenvAbsolutePath });
-
+const { User } = require('./models/index');
 require('./config/passport')(passport);
 
 const db = require('./config/keys').mongoURI;
@@ -71,18 +71,26 @@ app.use(function(req, res, next) {
 
 app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
-var username;
 
-io.on('connection', socket => {
+var email, username;
+io.on('connection', async socket => {
     console.log('a user connection!')
     console.log(21)
-    socket.on('clickButtonLogin', (data) => {
-        username = data.username;
-        console.log(data.username)
+    socket.on('clickButtonLogin', async(data) => {
+        email = data.email;
+        let user = await User.find({ email: email })
+        if (user) {
+            await user.map(item => {
+                username = item.name
+            })
+        }
+        //console.log(username, 1111111)
     })
-    socket.on('message', data => {});
+    socket.on('send-mess', data => {
+        console.log(username, data)
+    });
     socket.on('disconnect', () => {
-        console.log('user disconnection!', 11111111111111111111)
+        console.log('user disconnection!')
     });
 });
 http.listen(PORT, function() {
