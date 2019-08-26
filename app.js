@@ -71,14 +71,18 @@ app.use(function(req, res, next) {
 
 app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
+var username;
 
 io.on('connection', socket => {
     console.log('a user connection!')
     console.log(21)
-    socket.on('clickButtonLogin', )
-    socket.on('message', data => { /* … */ });
+    socket.on('clickButtonLogin', (data) => {
+        username = data.username;
+        console.log(data.username)
+    })
+    socket.on('message', data => {});
     socket.on('disconnect', () => {
-        console.log('user disconnection!')
+        console.log('user disconnection!', 11111111111111111111)
     });
 });
 http.listen(PORT, function() {

@@ -5,8 +5,9 @@
     $(document).ready(function() {
         $("#button-login").click(function() {
             var username = $('#email').val();
-            console.log(username)
-            socket.emit('clickButtonLogin', )
+            socket.emit('clickButtonLogin', {
+                username
+            })
         });
     })
 </script>

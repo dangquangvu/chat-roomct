@@ -6,11 +6,7 @@ var io = require('../app')
 router.get('/', forwardAuthenticated, (req, res) => res.render('welcome'));
 
 router.get('/chat', ensureAuthenticated, (req, res) => {
-    var ses = req.session.passport.user;
-    console.log(ses, 1111111111111);
-    res.render('chat', {
-        user: req.user
-    })
+    res.render('chat')
 });
 
 module.exports = router;
