@@ -11,15 +11,11 @@ const path = require('path')
 const app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
-var connect = require('connect');
-var sharedsession = require("express-socket.io-session");
-// mongoose.connect("mongodb://localhost:27017/", {
-//     useNewUrlParser: true
-// });
-// Passport Config
+const dotenvAbsolutePath = path.join(process.cwd(), ".env");
+require("dotenv").config({ silent: true, path: dotenvAbsolutePath });
+
 require('./config/passport')(passport);
-//console.log(session)
-// DB Config
+
 const db = require('./config/keys').mongoURI;
 const PORT = process.env.PORT || 5000;
 
@@ -73,14 +69,13 @@ app.use(function(req, res, next) {
     next();
 });
 
-// Routes
 app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
 
 io.on('connection', socket => {
-    //console.log(socket.handshake.session)
     console.log('a user connection!')
-        //console.log(socket)
+    console.log(21)
+    socket.on('clickButtonLogin', )
     socket.on('message', data => { /* … */ });
     socket.on('disconnect', () => {
         console.log('user disconnection!')
@@ -89,3 +84,5 @@ io.on('connection', socket => {
 http.listen(PORT, function() {
     console.log('listening on *:', PORT);
 });
+
+module.exports = io;
