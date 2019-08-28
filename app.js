@@ -39,20 +39,18 @@ app.use(express.static(__dirname + "../views"));
 app.use(morgan('dev'));
 // Express body parser
 app.use(express.urlencoded({ extended: true }));
-var session_store = new MongoStore({
-    mongooseConnection: mongoose.connection,
-    ttl: 10000
-});
-// Express session
-app.use(
-    session({
+var sessionMiddleware = session({
         secret: 'secret',
         resave: false,
         saveUninitialized: false,
         cookie: { secure: false },
-        store: session_store
+        store: new MongoStore({
+            mongooseConnection: mongoose.connection,
+            ttl: 10000
+        })
     })
-);
+    // Express session
+app.use(sessionMiddleware);
 app.use(cookieParser())
     // Passport middleware
 app.use(passport.initialize());
@@ -73,24 +71,26 @@ app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
 
 var email, username;
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next)
+})
 io.on('connection', async socket => {
     console.log('a user connection!')
     console.log(21)
-    socket.on('clickButtonLogin', async(data) => {
-        email = data.email;
-        let user = await User.find({ email: email })
-        if (user) {
-            await user.map(item => {
-                username = item.name
-            })
+    var userId = socket.request.session.passport.user;
+    let username = await User.findById({ _id: userId })
+    username = username.name;
+    console.log("Your User ID is", username);
+    socket.on('send-mess', async(data) => {
+        console.log(username, data);
+        let user = {
+            name: username,
+            mess: data
         }
-        //console.log(username, 1111111)
-    })
-    socket.on('send-mess', data => {
-        console.log(username, data)
+        io.emit('send-mess-client', user)
     });
     socket.on('disconnect', () => {
-        console.log('user disconnection!')
+        console.log('user disconnection:' + username)
     });
 });
 http.listen(PORT, function() {

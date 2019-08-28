@@ -1,19 +1,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io()
-    $(document).ready(function() {
-        $("#button-login").click(function() {
-            var email = $('#email').val();
-            socket.emit('clickButtonLogin', {
-                email
-            })
-            socket.emit('user-join', {
-                email
-            })
-        });
-    })
-</script>
+
 <div class="row mt-5">
     <div class="col-md-6 m-auto">
         <div class="card card-body">

@@ -9,20 +9,6 @@
     <title>Document</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io();
-        $(document).ready(function() {
-            $('#message').keypress(function(event) {
-                var keycode = (event.keyCode ? event.keyCode : event.which);
-                if (keycode == '13') {
-                    let mess = $(this).val();
-                    console.log(mess)
-                    socket.emit('send-mess', mess)
-                    $('#message').val('')
-                }
-            });
-        })
-    </script>
 
 </head>
 
@@ -44,5 +30,19 @@
     </div>
 </body>
 
+<script>
+    $(function() {
+        var socket = io();
+        $('#message-form').submit(function() {
+            let mess = $('#message').val();
+            socket.emit('send-mess', mess)
+            $('#message').val('')
+            return false;
+        });
+        socket.on('send-mess-client', async(messager) => {
+            $("#messages").append($('<li>').text(messager.name + ":" + messager.mess));
+        })
+    })
+</script>
 
 </html>
