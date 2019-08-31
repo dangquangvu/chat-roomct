@@ -16,7 +16,7 @@ var redis = require("redis"),
     client = redis.createClient();
 const dotenvAbsolutePath = path.join(process.cwd(), ".env");
 require("dotenv").config({ silent: true, path: dotenvAbsolutePath });
-const { User, BigRoom } = require('./models/index');
+const { User, Messagerdb, Rooms } = require('./models/index');
 require('./config/passport')(passport);
 const db = require('./config/keys').mongoURI;
 const PORT = process.env.PORT || 5000;
@@ -68,6 +68,7 @@ io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next)
 })
 io.on('connection', async socket => {
+    const idRooms = '5d6a393f5a6c9356d4f2757e';
     console.log('a user connection!')
     var userId = socket.request.session.passport.user;
     let username = await User.findById({ _id: userId })
@@ -75,29 +76,62 @@ io.on('connection', async socket => {
     console.log("Your User ID is", username);
     console.log(21)
     let userJoin = username + ' join in group chat!'
+
+    socket.on('join', async() => {
+        let arrUser = [];
+        let dataRoom = await Rooms.find({});
+        await dataRoom.map(async item1 => {
+            console.log(1111111111111111)
+            if (item1.idUser.length == 0) {
+                console.log(222222222222)
+                arrUser = item1.idUser;
+                arrUser.push(userId);
+                console.log(arrUser, 1111111)
+                let updateData = await Rooms.findByIdAndUpdate({ _id: idRooms }, {
+                    $set: {
+                        idUser: arrUser
+                    }
+                });
+                let x = await Rooms.findById({ _id: idRooms })
+                socket.emit('message-join', 'welcome!');
+                console.log(x, 11111122222)
+
+            }
+            if (item1.idUser.length >= 1) {
+                console.log(222222222222)
+                arrUser = item1.idUser;
+
+                arrUser.push(userId);
+                console.log(arrUser, 1111111)
+                let updateData = await Rooms.findByIdAndUpdate({ _id: idRooms }, {
+                    $set: {
+                        idUser: arrUser
+                    }
+                });
+                let x = await Rooms.findById({ _id: idRooms })
+                socket.emit('message-join', 'welcome!');
+                console.log(x, 11111122222)
+
+            }
+            item1.idUser.map(item => {
+                if (userId != item) {
+                    console.log('xxxxxxxxxxxx')
+                    socket.emit('message-join', 'welcome!');
+                    socket.broadcast.emit('message-join', userJoin)
+                }
+            })
+        })
+
+    });
     socket.on('send-mess', async(data) => {
         let date = new Date;
         let dated = ("0" + date.getDate()).slice(-2);
-
-        // current month
         let month = ("0" + (date.getMonth() + 1)).slice(-2);
-
-        // current year
         let year = date.getFullYear();
-
-        // current hours
         let hours = date.getHours();
-
-        // current minutes
         let minutes = date.getMinutes();
-
-        // current seconds
         let seconds = date.getSeconds();
-        //console.log(date.addHours(7))
-        // let gettime = date.format('h:mm:ss');
-        // console.log(gettime);
         console.log(year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds);
-
         let hoursMinutes = hours + ":" + minutes
         console.log(username, data, hoursMinutes);
         let user = {
@@ -105,7 +139,7 @@ io.on('connection', async socket => {
             mess: data,
             date: hoursMinutes
         }
-        let newMess = new BigRoom();
+        let newMess = new Messagerdb();
         newMess.idUser = userId;
         newMess.message = data;
         newMess.date = date;

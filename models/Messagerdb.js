@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const BigRoomSchema = new mongoose.Schema({
+const MessSchema = new mongoose.Schema({
     idUser: {
         type: String,
         required: true,
@@ -13,10 +13,13 @@ const BigRoomSchema = new mongoose.Schema({
     },
     date: {
         type: Date
+    },
+    idRoom: {
+        type: String,
+        default: 1
     }
-
 });
 
-const BigRoom = mongoose.model('BigRoom', BigRoomSchema);
+const Messagerdb = mongoose.model('Messagerdb', MessSchema);
 
-module.exports = BigRoom;
+module.exports = Messagerdb;

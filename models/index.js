@@ -1,4 +1,5 @@
 module.exports = {
     User: require('./User'),
-    BigRoom: require('./big-room')
+    Messagerdb: require('./Messagerdb'),
+    Rooms: require('./Rooms')
 }
