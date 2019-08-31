@@ -69,7 +69,7 @@ io.use((socket, next) => {
 })
 io.on('connection', async socket => {
     const idRooms = '5d6a393f5a6c9356d4f2757e';
-    console.log('a user connection!')
+    //console.log('a user connection!')
     var userId = socket.request.session.passport.user;
     let username = await User.findById({ _id: userId })
     username = username.name;
@@ -81,9 +81,7 @@ io.on('connection', async socket => {
         let arrUser = [];
         let dataRoom = await Rooms.find({});
         await dataRoom.map(async item1 => {
-            console.log(1111111111111111)
             if (item1.idUser.length == 0) {
-                console.log(222222222222)
                 arrUser = item1.idUser;
                 arrUser.push(userId);
                 console.log(arrUser, 1111111)
@@ -95,7 +93,6 @@ io.on('connection', async socket => {
                 let x = await Rooms.findById({ _id: idRooms })
                 socket.emit('message-join', 'welcome!');
                 console.log(x, 11111122222)
-
             }
             if (item1.idUser.length >= 1) {
                 let counter = 0;
@@ -124,13 +121,6 @@ io.on('connection', async socket => {
                 }
                 await counter == 0;
             }
-            // item1.idUser.map(item => {
-            //     if (userId != item) {
-            //         console.log('xxxxxxxxxxxx')
-            //         socket.emit('message-join', 'welcome!');
-            //         socket.broadcast.emit('message-join', userJoin)
-            //     }
-            // })
         })
 
     });
@@ -159,10 +149,11 @@ io.on('connection', async socket => {
     });
     socket.on('disconnect', () => {
         console.log('user disconnection:' + username)
+
     });
 });
 http.listen(PORT, function() {
-    console.log('listening on *:', PORT);
+    console.log('listening on port:', PORT);
 });
 
 module.exports = io;
