@@ -98,28 +98,39 @@ io.on('connection', async socket => {
 
             }
             if (item1.idUser.length >= 1) {
+                let counter = 0;
                 console.log(222222222222)
                 arrUser = item1.idUser;
-
-                arrUser.push(userId);
-                console.log(arrUser, 1111111)
-                let updateData = await Rooms.findByIdAndUpdate({ _id: idRooms }, {
-                    $set: {
-                        idUser: arrUser
+                await arrUser.map(item => {
+                    if (item == userId) {
+                        counter++;
                     }
-                });
-                let x = await Rooms.findById({ _id: idRooms })
-                socket.emit('message-join', 'welcome!');
-                console.log(x, 11111122222)
-
-            }
-            item1.idUser.map(item => {
-                if (userId != item) {
-                    console.log('xxxxxxxxxxxx')
+                })
+                if (counter == 0) {
+                    arrUser.push(userId);
+                    console.log(arrUser, 1111111)
+                    let updateData = await Rooms.findByIdAndUpdate({ _id: idRooms }, {
+                        $set: {
+                            idUser: arrUser
+                        }
+                    });
+                    let x = await Rooms.findById({ _id: idRooms })
                     socket.emit('message-join', 'welcome!');
                     socket.broadcast.emit('message-join', userJoin)
+                    console.log(x, 11111122222)
                 }
-            })
+                if (counter !== 0) {
+                    socket.emit('message-join', 'welcome!');
+                }
+                await counter == 0;
+            }
+            // item1.idUser.map(item => {
+            //     if (userId != item) {
+            //         console.log('xxxxxxxxxxxx')
+            //         socket.emit('message-join', 'welcome!');
+            //         socket.broadcast.emit('message-join', userJoin)
+            //     }
+            // })
         })
 
     });
