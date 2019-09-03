@@ -98,18 +98,18 @@ io.on('connection', async socket => {
             messOlder.map(async item => {
                 let dateConvert = item.date;
                 var newDate = new Date(dateConvert);
-                console.log(typeof newDate)
-                    // let dated = ("0" + dateConvert.getDate()).slice(-2);
-                    // let month = ("0" + (dateConvert.getMonth() + 1)).slice(-2);
-                    // let year = dateConvert.getFullYear();
-                    // let hours = dateConvert.getHours();
-                    // let minutes = dateConvert.getMinutes();
-                    // let seconds = dateConvert.getSeconds();
-                    // let hoursMinutes = hours + ":" + minutes
+                let dated = ("0" + newDate.getDate()).slice(-2);
+                //console.log(dated)
+                let month = ("0" + (newDate.getMonth() + 1)).slice(-2);
+                let year = newDate.getFullYear();
+                let hours = newDate.getHours();
+                let minutes = newDate.getMinutes();
+                let seconds = newDate.getSeconds();
+                let hoursMinutes = hours + ":" + minutes
                 let user = {
                     name: item.nameUser,
                     mess: item.message,
-                    date: item.date
+                    date: item.hoursMinutes
                 }
                 io.emit('send-mess-client', user)
             })
