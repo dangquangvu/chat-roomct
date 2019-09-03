@@ -14,6 +14,8 @@ var io = require('socket.io')(http);
 var moment = require('moment')
 var redis = require("redis"),
     client = redis.createClient();
+const { promisify } = require('util');
+const getAsync = promisify(client.get).bind(client);
 const dotenvAbsolutePath = path.join(process.cwd(), ".env");
 require("dotenv").config({ silent: true, path: dotenvAbsolutePath });
 const { User, Messagerdb, Rooms } = require('./models/index');
@@ -68,17 +70,52 @@ io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next)
 })
 io.on('connection', async socket => {
+    let objectMessSendRedis = {};
+    let arrMessSendRedis = [];
     const idRooms = '5d6a393f5a6c9356d4f2757e';
-    //console.log('a user connection!')
     var userId = socket.request.session.passport.user;
     let username = await User.findById({ _id: userId })
     username = username.name;
     console.log("Your User ID is", username);
     console.log(21)
     let userJoin = username + ' join in group chat!'
-
+    let messInBigRoom = await Messagerdb.find();
+    await messInBigRoom.map(async item => {
+            let idUser = item.idUser;
+            let message = item.message;
+            let date = item.date;
+            let nameUser = item.nameUser;
+            objectMessSendRedis = { idUser, message, date, nameUser }
+            await arrMessSendRedis.push(objectMessSendRedis);
+        })
+        //let a = arrMessSendRedis.reverse();
+    client.set('mess', JSON.stringify(arrMessSendRedis));
+    // sự kiện khi vào
     socket.on('join', async() => {
         let arrUser = [];
+        await getAsync('mess').then(res => {
+            let messOlder = JSON.parse(res);
+            messOlder.map(async item => {
+                let dateConvert = item.date;
+                var newDate = new Date(dateConvert);
+                console.log(typeof newDate)
+                    // let dated = ("0" + dateConvert.getDate()).slice(-2);
+                    // let month = ("0" + (dateConvert.getMonth() + 1)).slice(-2);
+                    // let year = dateConvert.getFullYear();
+                    // let hours = dateConvert.getHours();
+                    // let minutes = dateConvert.getMinutes();
+                    // let seconds = dateConvert.getSeconds();
+                    // let hoursMinutes = hours + ":" + minutes
+                let user = {
+                    name: item.nameUser,
+                    mess: item.message,
+                    date: item.date
+                }
+                io.emit('send-mess-client', user)
+            })
+        }).catch(err => {
+            console.log(err)
+        })
         let dataRoom = await Rooms.find({});
         await dataRoom.map(async item1 => {
             if (item1.idUser.length == 0) {
@@ -91,7 +128,7 @@ io.on('connection', async socket => {
                     }
                 });
                 let x = await Rooms.findById({ _id: idRooms })
-                socket.emit('message-join', 'welcome!');
+                socket.emit('message-join', 'welcome ' + username + '!');
                 console.log(x, 11111122222)
             }
             if (item1.idUser.length >= 1) {
@@ -112,12 +149,14 @@ io.on('connection', async socket => {
                         }
                     });
                     let x = await Rooms.findById({ _id: idRooms })
-                    socket.emit('message-join', 'welcome!');
+                        // sub ở đây
+                    socket.emit('message-join', 'welcome ' + username + '!');
                     socket.broadcast.emit('message-join', userJoin)
-                    console.log(x, 11111122222)
+                        //console.log(x, 11111122222)
                 }
                 if (counter !== 0) {
-                    socket.emit('message-join', 'welcome!');
+                    socket.emit('message-join', 'Welcome back ' + username + ' !');
+                    socket.broadcast.emit('message-join', username + ' comeback!')
                 }
                 await counter == 0;
             }
@@ -126,6 +165,7 @@ io.on('connection', async socket => {
     });
     socket.on('send-mess', async(data) => {
         let date = new Date;
+        console.log(typeof date)
         let dated = ("0" + date.getDate()).slice(-2);
         let month = ("0" + (date.getMonth() + 1)).slice(-2);
         let year = date.getFullYear();
@@ -142,9 +182,10 @@ io.on('connection', async socket => {
         }
         let newMess = new Messagerdb();
         newMess.idUser = userId;
+        newMess.nameUser = username;
         newMess.message = data;
         newMess.date = date;
-        //await newMess.save();
+        await newMess.save();
         io.emit('send-mess-client', user)
     });
     socket.on('disconnect', () => {

@@ -6,6 +6,10 @@ const MessSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    nameUser: {
+        type: String,
+        trim: true
+    },
     message: {
         type: String,
         required: true,
