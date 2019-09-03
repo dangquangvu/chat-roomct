@@ -66,6 +66,7 @@ app.use(function(req, res, next) {
 app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
 var arrUsername = [];
+let arrUser = [];
 io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next)
 })
@@ -92,7 +93,17 @@ io.on('connection', async socket => {
     client.set('mess', JSON.stringify(arrMessSendRedis));
     // sự kiện khi vào
     socket.on('join', async() => {
-        let arrUser = [];
+        let userIsActive = {
+            username: username,
+            userId: userId,
+        }
+        console.log(userIsActive)
+        arrUsername.push(userIsActive);
+        await arrUsername.map(async item => {
+            console.log(item.username);
+            io.emit('user-active', item);
+        });
+        console.log(arrUsername.length)
         await getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
             let idSocket = socket.id;
@@ -191,9 +202,16 @@ io.on('connection', async socket => {
         await newMess.save();
         io.emit('send-mess-client', user)
     });
-    socket.on('disconnect', () => {
-        console.log('user disconnection:' + username)
-
+    socket.on('disconnect', async() => {
+        let counterUser = 0;
+        console.log('user disconnection:' + username, userId)
+        let index = arrUsername.findIndex(item => {
+            item.userId == userId;
+        })
+        console.log(index)
+        if (index !== -1) {
+            arrUsername.splice(index, 1)[0]
+        }
     });
 });
 http.listen(PORT, function() {

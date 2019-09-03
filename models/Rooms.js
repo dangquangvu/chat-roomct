@@ -15,7 +15,7 @@ const RoomSchema = new mongoose.Schema({
         default: Date.now()
     },
     isActive: {
-
+        type: Array,
     }
 });
 

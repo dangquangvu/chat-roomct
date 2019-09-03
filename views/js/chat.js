@@ -17,14 +17,21 @@ socket.on('send-mess-client', async(messager) => {
             '<div id="contain" dir="auto">' + messager.mess + '</div>' +
             '</li>'
     });
-    $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 1000);
+    $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 0);
 })
 
 socket.on('message-join', (mess) => {
     $("#messages").append(function() {
         return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + mess + '</ li>'
     });
-    $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 1000);
+
+    $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 0);
 })
 
 socket.emit('join')
+
+socket.on('user-active', (chatter) => {
+    $("#sidebar").append(function() {
+        return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + chatter.username + '</ li>'
+    });
+})
