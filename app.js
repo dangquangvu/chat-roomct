@@ -95,6 +95,8 @@ io.on('connection', async socket => {
         let arrUser = [];
         await getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
+            let idSocket = socket.id;
+            //console.log()
             messOlder.map(async item => {
                 let dateConvert = item.date;
                 var newDate = new Date(dateConvert);
@@ -109,9 +111,10 @@ io.on('connection', async socket => {
                 let user = {
                     name: item.nameUser,
                     mess: item.message,
-                    date: item.hoursMinutes
+                    date: hoursMinutes
                 }
-                io.emit('send-mess-client', user)
+                io.to(idSocket).emit('send-mess-client', user);
+                //io.emit('send-mess-client', user)
             })
         }).catch(err => {
             console.log(err)
