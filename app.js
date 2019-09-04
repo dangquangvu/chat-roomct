@@ -100,17 +100,6 @@ io.on('connection', async socket => {
         }
         arrUsername.push(userIsActive);
         io.emit('user-active', arrUsername);
-        //console.log(userIsActive)
-        // await arrUsername.map(async item => {
-        //     console.log(item)
-        //     console.log(item.username, 091234345235);
-        //     //io.emit('user-active', item);
-        //     //io.sockets.emit('user-active', item.username);
-
-
-        //     //console.log(socket.username)
-        // });
-        //console.log(arrUsername.length)
         await getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
             //console.log()
@@ -211,19 +200,19 @@ io.on('connection', async socket => {
     socket.on('disconnect', async() => {
         let counterUser = 0;
         console.log('user disconnection:' + username, userId)
-        let count = 0;
-
-        function check(user) {
-            return user.userId == userId
+        const user = removeUser(userId)
+        if (user) {
+            io.emit('user-active', { arrUsername })
         }
-        let index = arrUsername.findIndex(check)
-        if (index > -1) {
-            arrUsername.splice(index, 1)
-            console.log('xxxx')
-        }
-        console.log(arrUsername)
     });
-    //socket.emit('disconn', arrUsername)
+    const removeUser = (id) => {
+            const index = arrUsername.findIndex((user) => user.userId === id)
+
+            if (index !== -1) {
+                return arrUsername.splice(index, 1)[0]
+            }
+        }
+        //socket.emit('disconn', arrUsername)
 });
 http.listen(PORT, function() {
     console.log('listening on port:', PORT);

@@ -32,20 +32,17 @@ socket.on('message-join', (mess) => {
     $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 0);
 })
 socket.emit('join')
-    // socket.on('disconn', (arrUser) => {
-    //     $("#sidebar").val('')
-    //     arrUser.map(item => {
-    //         $("#sidebar").append(function() {
-    //             return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'
-    //         });
-    //     })
-    //     $("#sidebar").val('')
-    // })
 socket.on('user-active', (chatter) => {
     $("#sidebar").val('')
-    chatter.map(item => {
-        $("#sidebar").append(function() {
-            return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'
-        });
-    })
+    var data = "";
+    for (i = 0; i < chatter.length; i++) {
+        data += " " + chatter[i];
+    };
+
+    document.getElementById('#sidebar').innerHTML = data;
+    // chatter.map(item => {
+    //     $("#sidebar").append(function() {
+    //         return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'
+    //     });
+    // })
 })
