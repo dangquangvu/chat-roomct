@@ -29,9 +29,18 @@ socket.on('message-join', (mess) => {
 })
 
 socket.emit('join')
-
+socket.on('disconn', (arrUser) => {
+    $("#sidebar").val('')
+    arrUser.map(item => {
+        $("#sidebar").append(function() {
+            return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'
+        });
+    })
+    $("#sidebar").val('')
+})
 socket.on('user-active', (chatter) => {
+    $("#sidebar").val('')
     $("#sidebar").append(function() {
-        return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + chatter.username + '</ li>'
+        return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + chatter + '</ li>'
     });
 })

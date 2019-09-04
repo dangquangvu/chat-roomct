@@ -65,8 +65,8 @@ app.use(function(req, res, next) {
 });
 app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
-var arrUsername = [];
 let arrUser = [];
+var arrUsername = [];
 io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next)
 })
@@ -93,20 +93,32 @@ io.on('connection', async socket => {
     client.set('mess', JSON.stringify(arrMessSendRedis));
     // sự kiện khi vào
     socket.on('join', async() => {
+        let idSocket = socket.id;
         let userIsActive = {
-            username: username,
-            userId: userId,
+            username,
+            userId,
         }
-        console.log(userIsActive)
-        arrUsername.push(userIsActive);
+        let checked = 0;
+        await arrUsername.map(item => {
+            if (item.username == userIsActive.username && item.userId == userIsActive.userId) {
+                checked = 1;
+                console.log('user is exits')
+            }
+        });
+        if (checked != 1) {
+            arrUsername.push(userIsActive);
+        }
+        //console.log(userIsActive)
         await arrUsername.map(async item => {
-            console.log(item.username);
-            io.emit('user-active', item);
+            console.log(item)
+            console.log(item.username, 091234345235);
+            //io.emit('user-active', item);
+            io.sockets.emit('user-active', item.username);
+            //console.log(socket.username)
         });
         console.log(arrUsername.length)
         await getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
-            let idSocket = socket.id;
             //console.log()
             messOlder.map(async item => {
                 let dateConvert = item.date;
@@ -147,7 +159,7 @@ io.on('connection', async socket => {
             }
             if (item1.idUser.length >= 1) {
                 let counter = 0;
-                console.log(222222222222)
+                //console.log(222222222222)
                 arrUser = item1.idUser;
                 await arrUser.map(item => {
                     if (item == userId) {
@@ -170,7 +182,7 @@ io.on('connection', async socket => {
                 }
                 if (counter !== 0) {
                     socket.emit('message-join', 'Welcome back ' + username + ' !');
-                    socket.broadcast.emit('message-join', username + ' comeback!')
+                    // socket.broadcast.emit('message-join', username + ' comeback!')
                 }
                 await counter == 0;
             }
@@ -187,7 +199,7 @@ io.on('connection', async socket => {
         let minutes = date.getMinutes();
         let seconds = date.getSeconds();
         console.log(year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds);
-        let hoursMinutes = hours + ":" + minutes
+        let hoursMinutes = hours + ":" + minutes;
         console.log(username, data, hoursMinutes);
         let user = {
             name: username,
@@ -205,14 +217,19 @@ io.on('connection', async socket => {
     socket.on('disconnect', async() => {
         let counterUser = 0;
         console.log('user disconnection:' + username, userId)
-        let index = arrUsername.findIndex(item => {
-            item.userId == userId;
-        })
-        console.log(index)
-        if (index !== -1) {
-            arrUsername.splice(index, 1)[0]
+        let count = 0;
+
+        function check(user) {
+            return user.userId == userId
         }
+        let index = arrUsername.findIndex(check)
+        if (index > -1) {
+            arrUsername.splice(index, 1)
+            console.log('xxxx')
+        }
+        console.log(arrUsername)
     });
+    socket.emit('disconn', arrUsername)
 });
 http.listen(PORT, function() {
     console.log('listening on port:', PORT);
