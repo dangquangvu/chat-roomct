@@ -98,25 +98,19 @@ io.on('connection', async socket => {
             username,
             userId,
         }
-        let checked = 0;
-        await arrUsername.map(item => {
-            if (item.username == userIsActive.username && item.userId == userIsActive.userId) {
-                checked = 1;
-                console.log('user is exits')
-            }
-        });
-        if (checked != 1) {
-            arrUsername.push(userIsActive);
-        }
+        arrUsername.push(userIsActive);
+        io.emit('user-active', arrUsername);
         //console.log(userIsActive)
-        await arrUsername.map(async item => {
-            console.log(item)
-            console.log(item.username, 091234345235);
-            //io.emit('user-active', item);
-            io.sockets.emit('user-active', item.username);
-            //console.log(socket.username)
-        });
-        console.log(arrUsername.length)
+        // await arrUsername.map(async item => {
+        //     console.log(item)
+        //     console.log(item.username, 091234345235);
+        //     //io.emit('user-active', item);
+        //     //io.sockets.emit('user-active', item.username);
+
+
+        //     //console.log(socket.username)
+        // });
+        //console.log(arrUsername.length)
         await getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
             //console.log()
@@ -229,7 +223,7 @@ io.on('connection', async socket => {
         }
         console.log(arrUsername)
     });
-    socket.emit('disconn', arrUsername)
+    //socket.emit('disconn', arrUsername)
 });
 http.listen(PORT, function() {
     console.log('listening on port:', PORT);

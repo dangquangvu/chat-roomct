@@ -20,6 +20,10 @@ socket.on('send-mess-client', async(messager) => {
     $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 0);
 })
 
+// socket.on('broadcast', (mess) => {
+//     console.log(mess)
+// })
+
 socket.on('message-join', (mess) => {
     $("#messages").append(function() {
         return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + mess + '</ li>'
@@ -27,20 +31,21 @@ socket.on('message-join', (mess) => {
 
     $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 0);
 })
-
 socket.emit('join')
-socket.on('disconn', (arrUser) => {
+    // socket.on('disconn', (arrUser) => {
+    //     $("#sidebar").val('')
+    //     arrUser.map(item => {
+    //         $("#sidebar").append(function() {
+    //             return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'
+    //         });
+    //     })
+    //     $("#sidebar").val('')
+    // })
+socket.on('user-active', (chatter) => {
     $("#sidebar").val('')
-    arrUser.map(item => {
+    chatter.map(item => {
         $("#sidebar").append(function() {
             return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'
         });
     })
-    $("#sidebar").val('')
-})
-socket.on('user-active', (chatter) => {
-    $("#sidebar").val('')
-    $("#sidebar").append(function() {
-        return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + chatter + '</ li>'
-    });
 })
