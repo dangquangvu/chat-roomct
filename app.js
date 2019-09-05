@@ -19,6 +19,7 @@ const getAsync = promisify(client.get).bind(client);
 const dotenvAbsolutePath = path.join(process.cwd(), ".env");
 require("dotenv").config({ silent: true, path: dotenvAbsolutePath });
 const { User, Messagerdb, Rooms } = require('./models/index');
+const { getDataMongodb } = require('./controller/index')
 require('./config/passport')(passport);
 const db = require('./config/keys').mongoURI;
 const PORT = process.env.PORT || 5000;
@@ -67,12 +68,22 @@ app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
 let arrUser = [];
 var arrUsername = [];
+let arrMessSendRedis = [];
+var arrMess = [];
+let getDataMg = async() => {
+    const data = await getDataMongodb.getData(arrMessSendRedis);
+    return data;
+};
+getDataMg().then((data) => {
+    arrMess = data;
+    client.set('mess', JSON.stringify(arrMess));
+    console.log('redis up ok!')
+});
 io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next)
 })
 io.on('connection', async socket => {
     let objectMessSendRedis = {};
-    let arrMessSendRedis = [];
     const idRooms = '5d6a393f5a6c9356d4f2757e';
     var userId = socket.request.session.passport.user;
     let username = await User.findById({ _id: userId })
@@ -80,18 +91,7 @@ io.on('connection', async socket => {
     console.log("Your User ID is", username);
     console.log(21)
     let userJoin = username + ' join in group chat!'
-    let messInBigRoom = await Messagerdb.find();
-    await messInBigRoom.map(async item => {
-            let idUser = item.idUser;
-            let message = item.message;
-            let date = item.date;
-            let nameUser = item.nameUser;
-            objectMessSendRedis = { idUser, message, date, nameUser }
-            await arrMessSendRedis.push(objectMessSendRedis);
-        })
-        //let a = arrMessSendRedis.reverse();
-    client.set('mess', JSON.stringify(arrMessSendRedis));
-    // sự kiện khi vào
+        // sự kiện khi vào
     socket.on('join', async() => {
         let idSocket = socket.id;
         let count = 0;
@@ -113,11 +113,11 @@ io.on('connection', async socket => {
             console.log('adduser')
         }
         io.emit('user-active', arrUsername);
-        await getAsync('mess').then(res => {
+        getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
             messOlder.map(async item => {
                 let dateConvert = item.date;
-                var newDate = new Date(dateConvert);
+                let newDate = new Date(dateConvert);
                 let dated = ("0" + newDate.getDate()).slice(-2);
                 let month = ("0" + (newDate.getMonth() + 1)).slice(-2);
                 let year = newDate.getFullYear();
@@ -214,11 +214,19 @@ io.on('connection', async socket => {
         const removeUser = async(id) => {
             const index = await arrUsername.findIndex((user) => user.userId === id)
             if (index !== -1) {
-                return arrUsername.splice(index, 1)[0]
+                if (arrUsername[index].numberUser > 1) {
+                    arrUsername[index].numberUser--;
+                    console.log(arrUsername[index].numberUser)
+                    return;
+                }
+                if (arrUsername[index].numberUser == 1) {
+                    return arrUsername.splice(index, 1)[0]
+                }
             }
         };
         let user = await removeUser(userId)
         if (user) {
+            console.log('wwwwwww')
             io.emit('user-active', arrUsername);
         }
     });
