@@ -33,13 +33,13 @@ socket.on('message-join', (mess) => {
 })
 socket.emit('join')
 socket.on('user-active', (chatter) => {
-    $("#sidebar").val('')
+    //$("#sidebar").val('')
     var data = "";
     for (i = 0; i < chatter.length; i++) {
-        data += " " + chatter[i];
+        data += " " + chatter[i].username;
     };
 
-    document.getElementById('#sidebar').innerHTML = data;
+    document.querySelector('#sidebar').innerHTML = data;
     // chatter.map(item => {
     //     $("#sidebar").append(function() {
     //         return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'

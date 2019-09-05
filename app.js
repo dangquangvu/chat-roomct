@@ -94,20 +94,31 @@ io.on('connection', async socket => {
     // sự kiện khi vào
     socket.on('join', async() => {
         let idSocket = socket.id;
+        let count = 0;
+        let numberUser = 1;
         let userIsActive = {
             username,
             userId,
+            numberUser
         }
-        arrUsername.push(userIsActive);
+        await arrUsername.map(item => {
+            if (item.username == userIsActive.username && item.userId == userIsActive.userId) {
+                count = 1;
+                item.numberUser++;
+                return;
+            }
+        })
+        if (count == 0) {
+            arrUsername.push(userIsActive);
+            console.log('adduser')
+        }
         io.emit('user-active', arrUsername);
         await getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
-            //console.log()
             messOlder.map(async item => {
                 let dateConvert = item.date;
                 var newDate = new Date(dateConvert);
                 let dated = ("0" + newDate.getDate()).slice(-2);
-                //console.log(dated)
                 let month = ("0" + (newDate.getMonth() + 1)).slice(-2);
                 let year = newDate.getFullYear();
                 let hours = newDate.getHours();
@@ -200,20 +211,20 @@ io.on('connection', async socket => {
     socket.on('disconnect', async() => {
         let counterUser = 0;
         console.log('user disconnection:' + username, userId)
-        const user = removeUser(userId)
-        if (user) {
-            io.emit('user-active', { arrUsername })
-        }
-    });
-    const removeUser = (id) => {
-            const index = arrUsername.findIndex((user) => user.userId === id)
-
+        const removeUser = async(id) => {
+            const index = await arrUsername.findIndex((user) => user.userId === id)
             if (index !== -1) {
                 return arrUsername.splice(index, 1)[0]
             }
+        };
+        let user = await removeUser(userId)
+        if (user) {
+            io.emit('user-active', arrUsername);
         }
-        //socket.emit('disconn', arrUsername)
+    });
+    //socket.emit('disconn', arrUsername)
 });
+
 http.listen(PORT, function() {
     console.log('listening on port:', PORT);
 });
