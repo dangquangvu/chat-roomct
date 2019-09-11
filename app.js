@@ -113,6 +113,7 @@ io.on('connection', async socket => {
             console.log('adduser')
         }
         io.emit('user-active', arrUsername);
+        //render data client
         getAsync('mess').then(res => {
             let messOlder = JSON.parse(res);
             messOlder.map(async item => {
@@ -131,7 +132,6 @@ io.on('connection', async socket => {
                     date: hoursMinutes
                 }
                 io.to(idSocket).emit('send-mess-client', user);
-                //io.emit('send-mess-client', user)
             })
         }).catch(err => {
             console.log(err)
@@ -153,7 +153,6 @@ io.on('connection', async socket => {
             }
             if (item1.idUser.length >= 1) {
                 let counter = 0;
-                //console.log(222222222222)
                 arrUser = item1.idUser;
                 await arrUser.map(item => {
                     if (item == userId) {
