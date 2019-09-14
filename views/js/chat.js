@@ -32,21 +32,22 @@ socket.on('message-join', (mess) => {
 })
 socket.emit('join')
 socket.on('user-active', (chatter) => {
-    //$("#sidebar").val('')
-    var data = "";
-    for (i = 0; i < chatter.length; i++) {
-        data += " " + chatter[i].username;
-    };
+        //$("#sidebar").val('')
+        var data = "";
+        for (i = 0; i < chatter.length; i++) {
+            data += " " + chatter[i].username;
+        };
 
-    document.querySelector('#sidebar').innerHTML = data;
-})
-$(document).ready(function() {
-    $(".chat__messages").scroll((event) => {
-        //console.log('bbbbb')
-        var body_place = $(".chat__messages").scrollTop();
-        //console.log(body_place)
-        if (body_place == 0) {
-            socket.emit('load_more');
-        }
+        document.querySelector('#sidebar').innerHTML = data;
     })
-})
+    // $(document).ready(function() {
+    //     $(".chat__messages").scroll((event) => {
+    //         var body_place = $(".chat__messages").scrollTop();
+    //         if (body_place == 0) {
+    //             socket.emit('load_more');
+    //         }
+    //     })
+    // })
+    // socket.on('load_more_mess', (arrMess) => {
+    //     //console.log(arrMess)
+    // })

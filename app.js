@@ -96,7 +96,15 @@ io.on('connection', async socket => {
     let dataRedis = await getAsync('mess');
     let messRedis = JSON.parse(dataRedis);
     let countRedis = messRedis.length;
-    let messOlder = messRedis.slice(Math.max(messRedis.length - 10, 1))
+    //let messOlder = messRedis.slice(Math.max(messRedis.length - 10, 1));
+    //let arrMessLoad = messOlder;
+    // socket.on('load_more', async() => {
+    //     let idSocket = socket.id;
+    //     arrMessLoad = messOlder;
+    //     //let indexMess = await messRedis.findIndex((user) => user.userId === id)
+    //     //console.log(arrMessLoad[0]);
+    //     io.to(idSocket).emit('load_more_mess', arrMessLoad[0]);
+    // })
     socket.on('join', async() => {
         let idSocket = socket.id;
         let count = 0;
@@ -119,7 +127,7 @@ io.on('connection', async socket => {
         }
         io.emit('user-active', arrUsername);
         //render data client
-        messOlder.map(async item => {
+        messRedis.map(async item => {
             let dateConvert = item.date;
             let newDate = new Date(dateConvert);
             let dated = ("0" + newDate.getDate()).slice(-2);
@@ -172,7 +180,6 @@ io.on('connection', async socket => {
                         }
                     });
                     let x = await Rooms.findById({ _id: idRooms })
-                        // sub ở đây
                     socket.emit('message-join', 'welcome ' + username + '!');
                     socket.broadcast.emit('message-join', userJoin)
                 }
@@ -218,7 +225,6 @@ io.on('connection', async socket => {
                 dataGet.push(objectMessSendRedis);
                 let addMessRedis = client.set('mess', JSON.stringify(dataGet));
                 //###########################  
-
             })
             .catch(console.log)
         io.emit('send-mess-client', user)
