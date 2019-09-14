@@ -2,8 +2,11 @@ var socket = io();
 // var room =
 $('#message-form').submit(function() {
     let mess = $('#message').val();
+    //alert($("#messages").scrollTop() + " px");
     socket.emit('send-mess', mess)
-    $('#message').val('')
+    $('#message').val('');
+    // let x = $("messages").scrollTop();
+    // console.log(x);
     return false;
 });
 socket.on('send-mess-client', async(messager) => {
@@ -19,10 +22,6 @@ socket.on('send-mess-client', async(messager) => {
     });
     $("#messages").animate({ scrollTop: $('#messages')[0].scrollHeight }, 0);
 })
-
-// socket.on('broadcast', (mess) => {
-//     console.log(mess)
-// })
 
 socket.on('message-join', (mess) => {
     $("#messages").append(function() {
@@ -40,9 +39,14 @@ socket.on('user-active', (chatter) => {
     };
 
     document.querySelector('#sidebar').innerHTML = data;
-    // chatter.map(item => {
-    //     $("#sidebar").append(function() {
-    //         return '<li style="list-style-type: none; font-size: 18px; padding-bottom: 15px; " >' + item.username + '</ li>'
-    //     });
-    // })
+})
+$(document).ready(function() {
+    $(".chat__messages").scroll((event) => {
+        //console.log('bbbbb')
+        var body_place = $(".chat__messages").scrollTop();
+        //console.log(body_place)
+        if (body_place == 0) {
+            socket.emit('load_more');
+        }
+    })
 })
